@@ -1,0 +1,21 @@
+### Specify all the variables for the project here ###
+# rename this file to vars.sh before running the script
+
+# Used for Linode API requests (e.g. for Terraform)
+export LINODE_TOKEN="paste_your_token_here"
+
+# Used for MySQL connection
+export DB_USERNAME="akmadmin"
+export DB_PASSWORD="paste_password_for_your_managed_db"
+export DB_HOST="paste_your_hostname_for_db_master_instance"
+export DB_PORT="27108"
+export DB_CONNECT_TIMEOUT="5"
+
+# Used to encapsulate resources created such as database name and k8s namespace where objects are deployed
+# NOTE: please use lower case alpha characters only (e.g. no spaces, hyphens, underscores, numbers, etc.)
+# Some systems don't like underscores, some don't like hyphens, some only allow numbers in certain places...
+# In the spirit of keeping things simple with this, please just use lower case alpha characters only here
+export PROJECT_NAMESPACE="testproject"
+
+# Job and CronJob spec variables
+export CONTAINER_IMAGE="pnordstrom/dbaas-test-harness:0.3"

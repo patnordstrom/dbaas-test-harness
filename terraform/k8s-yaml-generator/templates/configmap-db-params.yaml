@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "db-params"
+  namespace: "${project_namespace}"
+data:
+  db_host: "${db_host}"
+  db_port: "${db_port}"
+  db_connect_timeout: "${db_connect_timeout}"
+  db_schema: "${project_namespace}"
