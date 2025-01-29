@@ -89,11 +89,7 @@ function deploy_database {
     -var lke_allowed_ips="${lke_ip_addresses}" \
     -var user_defined_allowed_ips="${DB_ALLOWED_CIDRS}"
 
-}
-
-function generate_k8s_yaml_from_templates {
-
-  # set variables
+  # set variables required by other functions
 
   vars_to_set=("DB_USERNAME" "DB_PASSWORD" "DB_HOST" "DB_PORT")
 
@@ -106,6 +102,11 @@ function generate_k8s_yaml_from_templates {
     )
     export ${item}
   done
+
+
+}
+
+function generate_k8s_yaml_from_templates {
 
   # init the workspaces
   
