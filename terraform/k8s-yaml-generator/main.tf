@@ -30,3 +30,13 @@ data "template_file" "job_yaml_create_db_schema" {
     container_image   = var.container_image
   }
 }
+
+# Create the YAML for the CronJob that inserts records to customers table
+
+data "template_file" "cronjob_yaml_insert_records" {
+  template = file("${path.module}/templates/cronjob-insert-records.yaml")
+  vars = {
+    project_namespace = var.project_namespace
+    container_image   = var.container_image
+  }
+}

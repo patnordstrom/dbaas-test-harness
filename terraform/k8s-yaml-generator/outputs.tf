@@ -10,3 +10,7 @@ output "configmap_yaml_db_params" {
 output "job_yaml_create_db_schema" {
   value = data.template_file.job_yaml_create_db_schema.rendered
 }
+
+output "cronjob_yaml_insert_records" {
+  value = data.template_file.cronjob_yaml_insert_records.rendered
+}

@@ -14,7 +14,7 @@ _terraform_lke_deploy_dir="${_terraform_dir}/deploy-lke-cluster"
 _terraform_firewall_dir="${_terraform_dir}/deploy-firewall"
 _terraform_managed_db_dir="${_terraform_dir}/deploy-managed-db"
 _terraform_yaml_generator_dir="${_terraform_dir}/k8s-yaml-generator"
-_k8s_yaml_templates=('secret_yaml_db_credentials' 'configmap_yaml_db_params' 'job_yaml_create_db_schema')
+_k8s_yaml_templates=('secret_yaml_db_credentials' 'configmap_yaml_db_params' 'job_yaml_create_db_schema' 'cronjob_yaml_insert_records')
 
 
 ### declare functions ###
@@ -143,8 +143,8 @@ function generate_k8s_yaml_from_templates {
 function create_k8s_resources {
 
   kubectl create namespace ${PROJECT_NAMESPACE} --dry-run=client -o yaml | kubectl apply -f -
-  
-  kubectl create configmap python-scripts -n ${PROJECT_NAMESPACE} --from-file=${_python_scripts_dir}
+
+  kubectl create configmap python-scripts -n ${PROJECT_NAMESPACE} --from-file=${_python_scripts_dir} -o yaml --dry-run=client | kubectl apply -f -
   
   kubectl apply -f ${_k8s_yaml_dir}
 

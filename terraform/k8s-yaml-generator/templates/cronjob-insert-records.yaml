@@ -1,0 +1,60 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: "insert-db-records"
+  namespace: "${project_namespace}"
+spec:
+  schedule: "*/1 * * * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: "insert-db-records-container"
+            image: "${container_image}"
+            command: ["python3",  "/test-artifacts/scripts/insert-customer-records.py"]
+            env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: db_host
+                  name: db-params
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: db_port
+                  name: db-params
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: db-credentials
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: db-credentials
+            - name: DB_CONNECT_TIMEOUT
+              valueFrom:
+                configMapKeyRef:
+                  key: db_connect_timeout
+                  name: db-params
+            - name: DB_SCHEMA
+              valueFrom:
+                configMapKeyRef:
+                  key: db_schema
+                  name: db-params
+            volumeMounts:
+            - name: scripts
+              mountPath: "/test-artifacts/scripts"
+          restartPolicy: Never
+          volumes:
+          - name: scripts
+            configMap:
+              name: python-scripts
+              defaultMode: 0500
+              items:
+              - key: insert-customer-records.py
+                path: insert-customer-records.py
