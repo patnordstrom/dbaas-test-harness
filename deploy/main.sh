@@ -8,18 +8,24 @@ source ./vars.sh
 
 _script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 _k8s_yaml_dir="${_script_dir}/k8s-yaml"
+_terraform_dir="${_script_dir}/../terraform"
 _python_scripts_dir="${_script_dir}/../scripts"
-_terraform_yaml_generator_dir="$_script_dir/../terraform/k8s-yaml-generator"
+_terraform_lke_deploy_dir="${_terraform_dir}/deploy-lke-cluster"
+_terraform_firewall_dir="${_terraform_dir}/deploy-firewall"
+_terraform_managed_db_dir="${_terraform_dir}/deploy-managed-db"
+_terraform_yaml_generator_dir="${_terraform_dir}/k8s-yaml-generator"
 _k8s_yaml_templates=('secret_yaml_db_credentials' 'configmap_yaml_db_params' 'job_yaml_create_db_schema')
 
 
 ### declare functions ###
 
 function validate_variables {
+
   if [[ "${PROJECT_NAMESPACE}" =~ [^a-z] ]]; then
    echo "PROJECT_NAMESPACE contains invalid characters.  Please read the comment in the vars configuration file."
    exit 1
   fi
+
 }
 
 function init_working_directory {
@@ -30,17 +36,83 @@ function init_working_directory {
 }
 
 function deploy_lke_cluster {
-  echo "LKE cluster deployed"
+
+  # init the workspaces
+
+  terraform -chdir="${_terraform_lke_deploy_dir}" init
+  terraform -chdir="${_terraform_firewall_dir}" init
+
+
+  # deploy the cluster
+
+  terraform -chdir="${_terraform_lke_deploy_dir}" apply \
+    -auto-approve \
+    -var project_namespace="${PROJECT_NAMESPACE}" \
+    -var region="${LINODE_REGION}" \
+    -var image_type="${IMAGE_TYPE}" \
+    -var k8s_version="${K8S_VERSION}"
+
+  cluster_id=$(
+    terraform -chdir="${_terraform_lke_deploy_dir}" output \
+    -raw \
+    lke_cluster_id
+  )
+
+  # apply firewall controller to cluster
+
+  terraform -chdir="${_terraform_firewall_dir}" apply \
+    -auto-approve \
+    -var lke_cluster_id="${cluster_id}" 
+
 }
 
-function deploy_lke_firewall_controller {
-  echo "LKE firewall controller deployed"
+function deploy_database {
+
+  # init the workspaces
+  
+  terraform -chdir="${_terraform_managed_db_dir}" init
+
+  # deploy the DB cluster
+
+  lke_ip_addresses=$(
+    terraform -chdir="${_terraform_lke_deploy_dir}" output \
+      -json \
+      lke_ip_addresses
+  )
+
+  terraform -chdir="${_terraform_managed_db_dir}" apply \
+    -auto-approve \
+    -var project_namespace="${PROJECT_NAMESPACE}" \
+    -var region="${LINODE_REGION}" \
+    -var image_type="${IMAGE_TYPE}" \
+    -var db_cluster_size="${DB_CLUSTER_SIZE}" \
+    -var lke_allowed_ips="${lke_ip_addresses}" \
+    -var user_defined_allowed_ips="${DB_ALLOWED_CIDRS}"
+
 }
 
 function generate_k8s_yaml_from_templates {
-  let template_num=1
+
+  # set variables
+
+  vars_to_set=("DB_USERNAME" "DB_PASSWORD" "DB_HOST" "DB_PORT")
+
+  for item in "${vars_to_set[@]}"
+  do
+    declare ${item}=$(
+    terraform -chdir="${_terraform_managed_db_dir}" output \
+      -raw \
+      $(echo "${item}" | tr '[:upper:]' '[:lower:]')
+    )
+    export ${item}
+  done
+
+  # init the workspaces
+  
+  terraform -chdir="${_terraform_yaml_generator_dir}" init
 
   # generate k8s yaml
+
   terraform -chdir="${_terraform_yaml_generator_dir}" apply \
     -auto-approve \
     -var "db_username=${DB_USERNAME}" \
@@ -52,6 +124,11 @@ function generate_k8s_yaml_from_templates {
     -var "container_image=${CONTAINER_IMAGE}"
   
   # write yaml outputs to working directory
+  # templates are numbered so they will process in the desired order
+  # later in the script when we apply them with kubectl
+
+  let template_num=1
+
   for item in "${_k8s_yaml_templates[@]}"
   do
     terraform -chdir="${_terraform_yaml_generator_dir}" output \
@@ -81,9 +158,24 @@ validate_variables
 
 init_working_directory
 
-deploy_lke_cluster
 
-deploy_lke_firewall_controller
+if [ "${DEPLOY_LKE_CLUSTER}" == "yes" ]; then
+  deploy_lke_cluster
+else
+  read \
+    -p \
+    "Press enter when you have confirmed you have a kubeconfig.yaml in the 'deploy' directory" \
+    </dev/tty
+fi
+
+if [ "${DEPLOY_DB}" == "yes" ]; then
+  deploy_database
+else
+  read \
+    -p \
+    "Press enter when you have finished adding LKE node IPs to your managed DB white list" \
+    </dev/tty
+fi
 
 generate_k8s_yaml_from_templates
 

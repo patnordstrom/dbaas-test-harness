@@ -1,21 +1,49 @@
 ### Specify all the variables for the project here ###
-# rename this file to vars.sh before running the script
 
 # Used for Linode API requests (e.g. for Terraform)
-export LINODE_TOKEN="paste_your_token_here"
+
+export LINODE_TOKEN="placeholder"
+
+# Indicate if you want to deploy a new DB or LKE cluster (yes | no)
+
+export DEPLOY_DB="yes"
+export DEPLOY_LKE_CLUSTER="yes"
+
+# Provide details on deployment location, image size, k8s version, etc.
+
+export LINODE_REGION="us-ord"         # region to deploy compute resources
+export K8S_VERSION="1.31"             # kubernetes version
+export IMAGE_TYPE="g6-standard-1"     # type of instace to use
+export DB_CLUSTER_SIZE="1"            # number of nodes for DB Cluster (1-3)
+export LKE_CLUSTER_SIZE="1"           # number of nodes for LKE Cluster
+
+# Any additional IPs or subnets you want to allow access to the DB (commad delmited with CIDR notation)
+
+export DB_ALLOWED_CIDRS="1.2.3.4/32,4.5.6.7/24"            
+
 
 # Used for MySQL connection
-export DB_USERNAME="akmadmin"
-export DB_PASSWORD="paste_password_for_your_managed_db"
-export DB_HOST="paste_your_hostname_for_db_master_instance"
-export DB_PORT="27108"
+
+# Uncomment and supply the values below if you want to connect to an existing DB
+# NOTE: you will need to update the IP whitelist for your existing DB to include
+# the LKE node IPs or the connection of the pods in your cluster will fail to connect to the DB
+
+#export DB_USERNAME="akmadmin"
+#export DB_PASSWORD="placeholder"
+#export DB_HOST="placeholder.akamaidb.net"
+#export DB_PORT="27108"
+
+# override the connect timeout if desired
+
 export DB_CONNECT_TIMEOUT="5"
 
 # Used to encapsulate resources created such as database name and k8s namespace where objects are deployed
 # NOTE: please use lower case alpha characters only (e.g. no spaces, hyphens, underscores, numbers, etc.)
 # Some systems don't like underscores, some don't like hyphens, some only allow numbers in certain places...
-# In the spirit of keeping things simple with this, please just use lower case alpha characters only here
-export PROJECT_NAMESPACE="testproject"
+# In the spirit of keeping things simple with this, just use lower case alpha characters only
+
+export PROJECT_NAMESPACE="dbaastesting"
 
 # Job and CronJob spec variables
+
 export CONTAINER_IMAGE="pnordstrom/dbaas-test-harness:0.3"
