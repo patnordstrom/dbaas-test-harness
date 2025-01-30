@@ -1,5 +1,5 @@
 locals {
-  allowed_ips = setunion(split(",",var.user_defined_allowed_ips),var.lke_allowed_ips)
+  allowed_ips = var.user_defined_allowed_ips == "" ? var.lke_allowed_ips : setunion(split(",",var.user_defined_allowed_ips),var.lke_allowed_ips)
 }
 
 resource "linode_database_mysql_v2" "mysql_db_test" {

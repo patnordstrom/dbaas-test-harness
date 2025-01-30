@@ -19,7 +19,7 @@ export LKE_CLUSTER_SIZE="1"           # number of nodes for LKE Cluster
 
 # Any additional IPs or subnets you want to allow access to the DB (commad delmited with CIDR notation)
 
-export DB_ALLOWED_CIDRS="1.2.3.4/32,4.5.6.7/24"            
+export DB_ALLOWED_CIDRS="1.2.3.4/32,4.5.6.7/24"   # set to empty string if no additional IPs are needed
 
 
 # Used for MySQL connection

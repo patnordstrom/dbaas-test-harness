@@ -21,6 +21,7 @@ variable "lke_allowed_ips" {
 variable "user_defined_allowed_ips" {
   type = string
   description = "IP addresses provided by user input as comma delimited string"
+  default = ""
 }
 
 variable "db_cluster_size" {
