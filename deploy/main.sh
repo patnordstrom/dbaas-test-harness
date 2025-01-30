@@ -95,7 +95,7 @@ function deploy_database {
 
   for item in "${vars_to_set[@]}"
   do
-    declare ${item}=$(
+    declare -g ${item}=$(
     terraform -chdir="${_terraform_managed_db_dir}" output \
       -raw \
       $(echo "${item}" | tr '[:upper:]' '[:lower:]')
