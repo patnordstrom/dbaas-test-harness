@@ -1,1 +1,2 @@
 # dbaas-test-harness
+Includes code for deploying a MySQL managed database and managed Kubernetes clsuter on Akamai Cloud Compute so that mock data can be inserted regularly into the MySQL database.  It is meant to enable use cases for testing operational capabilities of the managed database such as backups, replication, forking, scaling, etc.  You can view the related guide for this repo here:  https://patnordstrom.medium.com/testing-operational-features-of-akamai-managed-databases-part-1-deploying-the-environment-d929d286ece3
