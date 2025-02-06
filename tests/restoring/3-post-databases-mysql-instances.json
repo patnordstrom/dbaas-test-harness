@@ -1,0 +1,15 @@
+{
+  "cluster_size": 1,
+  "fork": {
+    "restore_time": "2025-02-03T15:46:02",
+    "source": 123456
+  },
+  "ssl_connection": true,
+  "allow_list": [
+    "1.2.3.4/32"
+  ],
+  "engine": "mysql/8",
+  "label": "dbaastesting-db-restore-2025-02-03T15-46-02",
+  "region": "us-ord",
+  "type": "g6-standard-1"
+}
