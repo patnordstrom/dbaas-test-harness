@@ -15,6 +15,8 @@ _terraform_firewall_dir="${_terraform_dir}/deploy-firewall"
 _terraform_managed_db_dir="${_terraform_dir}/deploy-managed-db"
 _terraform_yaml_generator_dir="${_terraform_dir}/k8s-yaml-generator"
 _k8s_yaml_templates=('secret_yaml_db_credentials' 'configmap_yaml_db_params' 'job_yaml_create_db_schema' 'cronjob_yaml_insert_records')
+_auto_approve_terraform_deployments="no"
+_upgrade_terraform_providers="no"
 
 
 ### declare functions ###
@@ -39,14 +41,17 @@ function deploy_lke_cluster {
 
   # init the workspaces
 
-  terraform -chdir="${_terraform_lke_deploy_dir}" init
-  terraform -chdir="${_terraform_firewall_dir}" init
+  terraform -chdir="${_terraform_lke_deploy_dir}" init \
+    $( if [ ${_upgrade_terraform_providers} == "yes" ]; then printf %s "-upgrade"; fi )
+  
+  terraform -chdir="${_terraform_firewall_dir}" init \
+    $( if [ ${_upgrade_terraform_providers} == "yes" ]; then printf %s "-upgrade"; fi )
 
 
   # deploy the cluster
 
   terraform -chdir="${_terraform_lke_deploy_dir}" apply \
-    -auto-approve \
+    $( if [ ${_auto_approve_terraform_deployments} == "yes" ]; then printf %s "-auto-approve"; fi ) \
     -var project_namespace="${PROJECT_NAMESPACE}" \
     -var region="${LINODE_REGION}" \
     -var image_type="${IMAGE_TYPE}" \
@@ -70,7 +75,8 @@ function deploy_database {
 
   # init the workspaces
   
-  terraform -chdir="${_terraform_managed_db_dir}" init
+  terraform -chdir="${_terraform_managed_db_dir}" init \
+    $( if [ ${_upgrade_terraform_providers} == "yes" ]; then printf %s "-upgrade"; fi )
 
   # deploy the DB cluster
 
@@ -81,7 +87,7 @@ function deploy_database {
   )
 
   terraform -chdir="${_terraform_managed_db_dir}" apply \
-    -auto-approve \
+    $( if [ ${_auto_approve_terraform_deployments} == "yes" ]; then printf %s "-auto-approve"; fi ) \
     -var project_namespace="${PROJECT_NAMESPACE}" \
     -var region="${LINODE_REGION}" \
     -var image_type="${IMAGE_TYPE}" \
@@ -110,12 +116,13 @@ function generate_k8s_yaml_from_templates {
 
   # init the workspaces
   
-  terraform -chdir="${_terraform_yaml_generator_dir}" init
+  terraform -chdir="${_terraform_yaml_generator_dir}" init \
+    $( if [ ${_upgrade_terraform_providers} == "yes" ]; then printf %s "-upgrade"; fi )
 
   # generate k8s yaml
 
   terraform -chdir="${_terraform_yaml_generator_dir}" apply \
-    -auto-approve \
+    $( if [ ${_auto_approve_terraform_deployments} == "yes" ]; then printf %s "-auto-approve"; fi ) \
     -var "db_username=${DB_USERNAME}" \
     -var "db_password=${DB_PASSWORD}" \
     -var "db_host=${DB_HOST}" \
