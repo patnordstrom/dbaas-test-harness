@@ -15,7 +15,7 @@ _terraform_firewall_dir="${_terraform_dir}/deploy-firewall"
 _terraform_managed_db_dir="${_terraform_dir}/deploy-managed-db"
 _terraform_yaml_generator_dir="${_terraform_dir}/k8s-yaml-generator"
 _k8s_yaml_templates=('secret_yaml_db_credentials' 'configmap_yaml_db_params' 'job_yaml_create_db_schema' 'cronjob_yaml_insert_records')
-_auto_approve_terraform_deployments="no"
+_auto_approve_terraform_deployments="yes"
 _upgrade_terraform_providers="no"
 
 
@@ -55,7 +55,8 @@ function deploy_lke_cluster {
     -var project_namespace="${PROJECT_NAMESPACE}" \
     -var region="${LINODE_REGION}" \
     -var image_type="${IMAGE_TYPE}" \
-    -var k8s_version="${K8S_VERSION}"
+    -var k8s_version="${K8S_VERSION}" \
+    -var lke_cluster_size="${LKE_CLUSTER_SIZE}"
 
   cluster_id=$(
     terraform -chdir="${_terraform_lke_deploy_dir}" output \
