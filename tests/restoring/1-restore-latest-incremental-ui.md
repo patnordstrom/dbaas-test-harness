@@ -1,5 +1,5 @@
 
-> The full article and link to the series related to this can be found here:  [https://patnordstrom.medium.com/](https://patnordstrom.medium.com/)
+> The full article and link to the series related to this can be found here:  [https://patnordstrom.medium.com/testing-operational-features-of-akamai-managed-databases-part-2-db-restoration-capabilities-9560cf0b9217](https://patnordstrom.medium.com/testing-operational-features-of-akamai-managed-databases-part-2-db-restoration-capabilities-9560cf0b9217)
 > 
 
 # Restore DB using *Newest full backup plus incremental* option in Cloud Manager
