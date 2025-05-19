@@ -3,6 +3,7 @@ vars.sh
 kubeconfig.yaml
 **/k8s-yaml/*
 *.curltrace
+*.log
 
 # Local .terraform directories
 **/.terraform/*

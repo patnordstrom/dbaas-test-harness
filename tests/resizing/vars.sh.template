@@ -1,0 +1,6 @@
+export DB_USERNAME="akmadmin"
+export DB_PASSWORD="placeholder"
+export DB_HOST="placeholder.g2a.akamaidb.net"
+export DB_PORT=27108
+export DB_SCHEMA="dbaastesting"
+export DB_CONNECT_TIMEOUT=5
